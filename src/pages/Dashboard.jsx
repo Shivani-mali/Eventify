@@ -18,7 +18,11 @@ import {
   TrendingUp,
   Users,
   DollarSign,
-  ArrowRight
+  ArrowRight,
+  Bell,
+  Folder,
+  Bot,
+  Sparkles
 } from 'lucide-react';
 import { BentoGrid, BentoCard } from '../components/ui/BentoGrid';
 
@@ -73,51 +77,50 @@ const Dashboard = () => {
     }
   };
 
-  const features = [
+  const bentoCards = [
     {
-      name: "One-Click AI",
-      description: "Generate complete event plan instantly with AI.",
-      Icon: Zap,
-      href: "/create-event",
-      cta: "Launch AI",
-      className: "md:col-span-2",
-      background: <div className="absolute inset-0 bg-blue-500/5" />
-    },
-    {
-      name: "Insights",
-      description: "Track performance and predictions.",
-      Icon: PieChart,
-      href: "/analytics",
-      cta: "View Data",
+      name: "Reminders",
+      description: "Upcoming events and alerts.",
+      Icon: Bell,
+      href: "/events",
+      cta: "View Reminders",
       className: "md:col-span-1",
-      background: <div className="absolute inset-0 bg-purple-500/5" />
+      background: (
+        <div className="absolute inset-0 bg-blue-500/5 transition-opacity" />
+      )
     },
     {
-      name: "Event Calendar",
-      description: "Manage schedules and timelines.",
+      name: "Calendar",
+      description: "Manage your event schedule.",
       Icon: Calendar,
       href: "/events",
       cta: "Open Calendar",
       className: "md:col-span-1",
-      background: <div className="absolute inset-0 bg-green-500/5" />
-    },
-    {
-      name: "Risk Detection",
-      description: "Identify conflicts and issues automatically.",
-      Icon: ShieldAlert,
-      href: "#",
-      cta: "Check Risks",
-      className: "md:col-span-1",
-      background: <div className="absolute inset-0 bg-red-500/5" />
+      background: (
+        <div className="absolute inset-0 bg-purple-500/5 transition-opacity" />
+      )
     },
     {
       name: "AI Assistant",
-      description: "Ask anything about your event.",
-      Icon: MessageSquare,
-      href: "#",
-      cta: "Chat Now",
+      description: "Smart suggestions for your events.",
+      Icon: Sparkles,
+      href: "/create-event",
+      cta: "Ask AI",
       className: "md:col-span-1",
-      background: <div className="absolute inset-0 bg-orange-500/5" />
+      background: (
+        <div className="absolute inset-0 bg-cyan-500/5 transition-opacity" />
+      )
+    },
+    {
+      name: "Events Navigator",
+      description: "Manage and navigate your history.",
+      Icon: Folder,
+      href: "/events",
+      cta: "Go to Events",
+      className: "md:col-span-3",
+      background: (
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5" />
+      )
     }
   ];
 
@@ -126,7 +129,7 @@ const Dashboard = () => {
       {/* 1. HEADER & SUMMARY CARDS */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 md:mb-16">
         <div>
-          <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4">Command Center</h1>
+          <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 italic">Welcome Home</h1>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-sm">
               {auth.currentUser?.email?.[0]?.toUpperCase()}
@@ -156,10 +159,10 @@ const Dashboard = () => {
 
       {/* 2. BENTO GRID */}
       <div className="mb-20">
-        <h2 className="text-xs font-black uppercase tracking-[0.3em] text-cyan-400 mb-8 ml-1">Feature Control Panel</h2>
+        <h2 className="text-xs font-black uppercase tracking-[0.3em] text-cyan-400 mb-8 ml-1">Eventify Control Center</h2>
         <BentoGrid>
-          {features.map((feature, idx) => (
-            <BentoCard key={idx} {...feature} />
+          {bentoCards.map((card, idx) => (
+            <BentoCard key={idx} {...card} />
           ))}
         </BentoGrid>
       </div>

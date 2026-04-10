@@ -102,42 +102,8 @@ const Home = () => {
         </motion.div>
       </section>
 
-      <section id="features" className="py-20 md:py-32 px-6">
-        <div className="max-w-6xl mx-auto">
-          <motion.div {...fadeInUp} className="text-center mb-16 md:mb-24">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-6">AI Smart Features</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-base md:text-lg font-medium">
-              We've automated the most complex parts of event planning so you can focus on the vision.
-            </p>
-          </motion.div>
+      {/* Features section removed as requested */}
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: <Zap />, title: "One-Click AI", desc: "Generate a complete event roadmap, budget, and task list from a single prompt." },
-              { icon: <ShieldAlert />, title: "Risk Detection", desc: "Real-time monitoring of logistics and weather to identify potential bottlenecks." },
-              { icon: <LineChart />, title: "Predictive Analytics", desc: "Estimate guest turnout, cost-per-head, and capacity needs before you book." },
-              { icon: <Bot />, title: "AI Assistant", desc: "A 24/7 intelligent companion to handle bookings and guest queries instantly." },
-              { icon: <Calendar />, title: "Smart Planning", desc: "Auto-scheduling engine that optimizes every minute of your event timeline." },
-              { icon: <BarChart3 />, title: "Cost Optimization", desc: "AI identifies savings in resource allocation and vendor selection." }
-            ].map((feature, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="p-8 glass-card rounded-[2.5rem] border-white/5 hover:border-blue-500/30 transition-all group"
-              >
-                <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform">
-                  {feature.icon}
-                </div>
-                <h3 className="text-2xl font-black mb-4 tracking-tight">{feature.title}</h3>
-                <p className="text-gray-500 font-medium leading-relaxed">{feature.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 3. SHOWCASE SECTION */}
       <section className="py-32 px-6 bg-gradient-to-b from-transparent to-blue-900/10">

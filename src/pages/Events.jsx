@@ -1,62 +1,140 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { db, auth } from '../firebase';
+import { collection, query, onSnapshot, orderBy, where, deleteDoc, doc } from 'firebase/firestore';
+import { Link } from 'react-router-dom';
 import { 
   Bell, 
   Calendar as CalendarIcon, 
-  ChevronLeft, 
-  ChevronRight, 
+  Clock, 
+  Zap, 
+  MapPin, 
   Bot, 
   Sparkles, 
+  ChevronLeft, 
+  ChevronRight,
   MessageSquare,
-  Zap,
-  Clock,
-  MapPin,
-  Plus
+  Plus,
+  ArrowRight,
+  CheckCircle,
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const Events = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDateEvents, setSelectedDateEvents] = useState([]);
+  const [selectedDateStr, setSelectedDateStr] = useState(null);
+  const [allEvents, setAllEvents] = useState([]);
+  const [reminders, setReminders] = useState([]);
 
-  // Mock Reminders Data
-  const reminders = [
-    { id: 1, name: "Tech Summit 2026", time: "in 2 hours", type: "Corporate", color: "blue" },
-    { id: 2, name: "AI Workshop", time: "Tomorrow, 10 AM", type: "Education", color: "purple" },
-    { id: 3, name: "Product Launch", time: "Friday", type: "Marketing", color: "cyan" }
-  ];
+  // Fetch Events from Firestore
+  useEffect(() => {
+    if (!auth.currentUser) return;
+    const q = query(
+      collection(db, "events"), 
+      where("userId", "==", auth.currentUser.uid),
+      orderBy("createdAt", "desc")
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setAllEvents(docs);
+      
+      // Filter for Reminders (upcoming)
+      const now = new Date().toISOString().split('T')[0];
+      setReminders(docs.filter(e => e.date >= now).slice(0, 3));
+    });
+    return unsubscribe;
+  }, []);
 
-  // Helper for Calendar
-  const daysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
-  const firstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const days = new Date(year, month + 1, 0).getDate();
+    return { firstDay, days };
+  };
+
+  const handleDateClick = (day) => {
+    const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    setSelectedDateStr(dateStr);
+    const filtered = allEvents.filter(e => e.date === dateStr);
+    setSelectedDateEvents(filtered);
+    
+    // Smooth scroll to event list if needed
+    const el = document.getElementById('selected-date-panel');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleDeleteEvent = async (id) => {
+    if (!window.confirm("Are you sure you want to cancel and remove this event?")) return;
+    try {
+      await deleteDoc(doc(db, "events", id));
+      // Update local view
+      setSelectedDateEvents(selectedDateEvents.filter(e => e.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const renderCalendar = () => {
-    const month = currentDate.getMonth();
-    const year = currentDate.getFullYear();
-    const totalDays = daysInMonth(month, year);
-    const startDay = firstDayOfMonth(month, year);
-    
-    let calendarDays = [];
-    for (let i = 0; i < startDay; i++) {
-      calendarDays.push(<div key={`empty-${i}`} className="h-24 md:h-32 border border-white/5 opacity-20" />);
+    const { firstDay, days } = getDaysInMonth(currentDate);
+    const calendarDays = [];
+
+    // Empty slots
+    for (let i = 0; i < firstDay; i++) {
+        calendarDays.push(<div key={`empty-${i}`} className="h-20 md:h-32 border-r border-b border-white/5 opacity-0" />);
     }
-    for (let d = 1; d <= totalDays; d++) {
-      const isToday = d === new Date().getDate() && month === new Date().getMonth();
-      calendarDays.push(
-        <div key={d} className={`h-24 md:h-32 border border-white/5 p-2 transition-all hover:bg-white/5 cursor-pointer relative group ${isToday ? 'bg-blue-500/5' : ''}`}>
-          <span className={`text-sm font-black ${isToday ? 'text-blue-500' : 'text-gray-500'}`}>{d}</span>
-          {d % 7 === 0 && (
-            <div className="mt-2 p-1 bg-blue-500/20 text-blue-400 text-[8px] md:text-[10px] font-black uppercase rounded truncate border border-blue-500/20">
-              Demo Event
-            </div>
-          )}
-          <div className="absolute inset-0 border-2 border-transparent group-hover:border-blue-500/20 rounded-lg pointer-events-none" />
-        </div>
-      );
+
+    // Actual days
+    for (let d = 1; d <= days; d++) {
+        const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const hasEvents = allEvents.some(e => e.date === dateStr);
+        const isSelected = selectedDateStr === dateStr;
+
+        calendarDays.push(
+          <motion.div 
+            key={d} 
+            whileHover={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
+            onClick={() => handleDateClick(d)}
+            className={`h-20 md:h-32 border-r border-b border-white/5 p-4 cursor-pointer transition-all relative ${isSelected ? 'bg-blue-600/10' : ''}`}
+          >
+            <span className={`text-sm font-bold ${isSelected ? 'text-blue-500' : 'text-gray-400'}`}>{d}</span>
+            {hasEvents && (
+               <div className="absolute bottom-4 left-4 flex gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+               </div>
+            )}
+          </motion.div>
+        );
     }
+
     return calendarDays;
+  };
+
+  // Chat Logic
+  const [messages, setMessages] = useState([{ role: 'ai', text: "How can I help you optimize your schedule today?" }]);
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  const sendMessage = (text) => {
+    if (!text.trim()) return;
+    const newMessages = [...messages, { role: 'user', text }];
+    setMessages(newMessages);
+    setInputValue('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      let response = "I'm analyzing your request... Based on your current event density, I suggest keeping the buffer times at 30 minutes.";
+      if (text.toLowerCase().includes('time')) response = "Optimal peak turnout is between 8:00 PM and 9:30 PM for urban corporate events.";
+      if (text.toLowerCase().includes('budget')) response = "Your current spending suggests a 12% saving opportunity on vendor logistics.";
+      
+      setMessages([...newMessages, { role: 'ai', text: response }]);
+      setIsTyping(false);
+    }, 1500);
   };
 
   return (
@@ -68,26 +146,21 @@ const Events = () => {
           <h2 className="text-2xl font-black tracking-tighter uppercase italic">Upcoming Reminders</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {reminders.map((rem) => (
-            <motion.div 
-              key={rem.id}
-              whileHover={{ y: -5 }}
-              className="glass-card p-6 rounded-[2rem] border-white/5 relative overflow-hidden group"
-            >
-              <div className={`absolute -right-8 -top-8 w-24 h-24 bg-${rem.color}-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform`} />
+          {reminders.length > 0 ? reminders.map((rem) => (
+            <motion.div key={rem.id} className="glass-card p-6 rounded-[2rem] border-white/5 relative overflow-hidden group">
+              <div className="absolute -right-8 -top-8 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
               <div className="flex justify-between items-start mb-4">
-                <div className={`px-3 py-1 bg-${rem.color}-500/10 text-${rem.color}-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-${rem.color}-500/10`}>
-                  {rem.type}
-                </div>
+                <div className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-500/10 uppercase italic">{rem.type}</div>
                 <div className="text-gray-500"><Clock size={16} /></div>
               </div>
-              <h3 className="text-xl font-black mb-1 group-hover:text-blue-400 transition-colors uppercase italic tracking-tight">{rem.name}</h3>
-              <p className="text-gray-400 font-bold flex items-center gap-2">
-                <Sparkles size={14} className="text-yellow-500" />
-                {rem.time}
-              </p>
+              <h3 className="text-xl font-black mb-1 uppercase italic tracking-tight">{rem.name}</h3>
+              <p className="text-gray-400 font-bold flex items-center gap-2 italic"><Sparkles size={14} className="text-yellow-500" />{rem.date}</p>
             </motion.div>
-          ))}
+          )) : (
+            <div className="col-span-3 py-12 text-center glass-card rounded-[2rem] border-dashed border-white/5 text-gray-600 font-bold">
+               No upcoming reminders found.
+            </div>
+          )}
         </div>
       </section>
 
@@ -112,6 +185,50 @@ const Events = () => {
            <div className="grid grid-cols-7">
               {renderCalendar()}
            </div>
+        </div>
+
+        {/* Selected Date Panel */}
+        <div id="selected-date-panel" className="mt-8">
+           <AnimatePresence mode="wait">
+              {selectedDateStr && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  exit={{ opacity: 0 }}
+                  className="glass-card rounded-[2.5rem] p-8 border-white/5"
+                >
+                  <h3 className="text-xl font-black italic uppercase tracking-tighter mb-6 text-blue-400">Events on {selectedDateStr}</h3>
+                  <div className="space-y-4">
+                    {selectedDateEvents.length > 0 ? selectedDateEvents.map(e => (
+                      <div key={e.id} className="flex items-center justify-between p-6 bg-white/5 rounded-3xl border border-white/5 hover:border-white/10 transition-all">
+                        <div className="flex items-center gap-6">
+                           <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white"><Sparkles size={24}/></div>
+                           <div>
+                             <h4 className="text-xl font-black italic uppercase">{e.name}</h4>
+                             <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">{e.venue} • {e.type}</p>
+                           </div>
+                        </div>
+                        <div className="flex items-center gap-8">
+                           <div className="text-right hidden md:block">
+                              <div className="text-xs font-black text-gray-600 uppercase tracking-widest mb-1">Budget</div>
+                              <div className="text-lg font-black text-white">{e.budget}</div>
+                           </div>
+                           <button 
+                             onClick={(ev) => { ev.stopPropagation(); handleDeleteEvent(e.id); }} 
+                             className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                             title="Cancel Event"
+                           >
+                              <Trash2 size={18} />
+                           </button>
+                        </div>
+                      </div>
+                    )) : (
+                      <p className="text-gray-600 font-bold italic py-4 text-center">No events scheduled for this day.</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+           </AnimatePresence>
         </div>
       </section>
 
@@ -144,32 +261,35 @@ const Events = () => {
               <div>
                 <div className="flex items-center gap-3 mb-8">
                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg"><MessageSquare size={20} /></div>
-                   <h3 className="text-xl font-black tracking-tight">AI Assistant</h3>
+                   <h3 className="text-xl font-black tracking-tight italic">AI Assistant</h3>
                 </div>
-                <div className="space-y-4 mb-8">
-                   <div className="p-4 bg-white/5 rounded-2xl text-sm font-medium text-gray-400 border border-white/5 italic">"How can I help you optimize your schedule today?"</div>
-                   <div className="flex flex-wrap gap-2">
-                      {["Best Time", "Budget Tips", "Staffing", "Logistics"].map(tag => (
-                        <button key={tag} className="px-4 py-2 bg-blue-500/10 text-blue-400 text-[10px] font-black uppercase rounded-full border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all">{tag}</button>
-                      ))}
-                   </div>
+                <div className="space-y-4 mb-4 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                   {messages.map((m, i) => (
+                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={i} className={`p-4 rounded-2xl text-sm font-medium border border-white/5 ${m.role === 'ai' ? 'bg-white/5 text-gray-400 italic' : 'bg-blue-600/10 text-blue-400 ml-8'}`}>
+                        {m.text}
+                     </motion.div>
+                   ))}
+                   {isTyping && <div className="text-xs text-gray-500 animate-pulse italic ml-2">AI is thinking...</div>}
                 </div>
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {["Best Time", "Budget Tips", "Staffing", "Logistics"].map(tag => (
+                    <button key={tag} onClick={() => sendMessage(tag)} className="px-4 py-2 bg-blue-500/10 text-blue-400 text-[10px] font-black uppercase rounded-full border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all">{tag}</button>
+                  ))}
+               </div>
               </div>
               <div className="relative">
-                <input 
-                  type="text" 
-                  className="w-full px-6 py-5 rounded-2xl border border-white/10 bg-white/5 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold text-sm"
-                  placeholder="Ask anything..."
-                />
-                <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-600 rounded-xl text-white shadow-lg active:scale-95 transition-all"><Zap size={18}/></button>
+                <form onSubmit={(e) => { e.preventDefault(); sendMessage(inputValue); }}>
+                  <input type="text" className="w-full px-6 py-5 rounded-2xl border border-white/10 bg-white/5 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold text-sm" placeholder="Ask anything..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
+                  <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-600 rounded-xl text-white shadow-lg active:scale-95 transition-all"><Zap size={18}/></button>
+                </form>
               </div>
            </div>
         </div>
       </section>
 
-      {/* 4. FOOTER REDIRECT (Action Panel) */}
+      {/* Footer Redirect */}
       <section className="mt-24 text-center">
-         <Link to="/create-event" className="inline-flex items-center gap-4 px-12 py-6 bg-white text-black rounded-[2.5rem] font-black text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all">
+         <Link to="/create-event" className="inline-flex items-center gap-4 px-12 py-6 bg-white text-black rounded-[2.5rem] font-black text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all uppercase italic tracking-widest">
             <Plus size={24} /> Create New Event
          </Link>
       </section>

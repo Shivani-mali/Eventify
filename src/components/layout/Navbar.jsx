@@ -26,8 +26,8 @@ const Navbar = () => {
   };
 
   const navLinks = user ? [
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Create', path: '/create-event' },
+    { name: 'Home', path: '/dashboard' },
+    { name: 'AI Help', path: '/create-event' },
     { name: 'Events', path: '/events' },
     { name: 'Analytics', path: '/analytics' },
   ] : [];
@@ -47,14 +47,6 @@ const Navbar = () => {
 
         {/* DESKTOP NAV */}
         <div className="hidden md:flex items-center gap-2 bg-gray-800/40 p-1 rounded-2xl border border-white/5">
-          {!isLoginPage && (
-            <button 
-              onClick={() => scrollByAmount('features')} 
-              className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-blue-500 transition-colors"
-            >
-              Features
-            </button>
-          )}
           {navLinks.map((link) => (
             <Link 
               key={link.path}
@@ -107,12 +99,7 @@ const Navbar = () => {
             className="md:hidden overflow-hidden bg-gray-900/90 backdrop-blur-2xl border-b border-white/5"
           >
             <div className="flex flex-col gap-2 p-6">
-              <button 
-                onClick={() => scrollByAmount('features')}
-                className="w-full text-left py-4 text-xl font-bold text-gray-300 border-b border-white/5"
-              >
-                Features
-              </button>
+
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
