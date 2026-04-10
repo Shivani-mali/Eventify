@@ -17,7 +17,12 @@ import {
   Briefcase,
   Edit3,
   Save,
-  Clock
+  Clock,
+  Gift,
+  Baby,
+  Gem,
+  Home,
+  Palmtree
 } from 'lucide-react';
 
 const CreateEvent = () => {
@@ -35,14 +40,19 @@ const CreateEvent = () => {
     venue: '',
     date: new Date().toISOString().split('T')[0],
     budget: '',
-    type: ''
+    type: '',
+    guestCount: '100+'
   });
 
   const eventTypes = [
     { id: 'wedding', name: 'Wedding', icon: <Heart />, color: 'pink', desc: 'Elegant & Romantic' },
     { id: 'birthday', name: 'Birthday', icon: <Cake />, color: 'yellow', desc: 'Fun & Vibrant' },
     { id: 'corporate', name: 'Corporate', icon: <Briefcase />, color: 'blue', desc: 'Professional & Modern' },
-    { id: 'gathering', name: 'Gathering', icon: <Users />, color: 'purple', desc: 'Social & Relaxed' }
+    { id: 'anniversary', name: 'Anniversary', icon: <Gift />, color: 'rose', desc: 'Milestones & Love' },
+    { id: 'babyshower', name: 'Baby Shower', icon: <Baby />, color: 'cyan', desc: 'Joy & Celebration' },
+    { id: 'engagement', name: 'Engagement', icon: <Gem />, color: 'indigo', desc: 'Promises & Rings' },
+    { id: 'family', name: 'Family Reunion', icon: <Home />, color: 'green', desc: 'Togetherness & Roots' },
+    { id: 'farewell', name: 'Farewell', icon: <Palmtree />, color: 'orange', desc: 'New Beginnings' }
   ];
 
   const handleGenerate = (type) => {
@@ -66,21 +76,26 @@ const CreateEvent = () => {
           
           // Set Mock Data based on type (Rupees)
           const mocks = {
-            wedding: { name: 'Everlast Nuptials', theme: 'White & Gold', venue: 'Rose Manor', budget: '₹5,00,000' },
-            birthday: { name: 'Neon Glow Bash', theme: 'Cyber-Pop', venue: 'Sky Lounge', budget: '₹25,000' },
-            corporate: { name: 'Innovation Summit', theme: 'Glass Minimalist', venue: 'Tech Hall', budget: '₹1,50,000' },
-            gathering: { name: 'Sunset Social', theme: 'Rustic Chic', venue: 'Harbor Terrace', budget: '₹10,000' }
+            wedding: { name: 'Everlast Nuptials', theme: 'White & Gold', venue: 'Rose Manor', budget: '₹5,00,000', guestCount: '250' },
+            birthday: { name: 'Neon Glow Bash', theme: 'Cyber-Pop', venue: 'Sky Lounge', budget: '₹25,000', guestCount: '50' },
+            corporate: { name: 'Innovation Summit', theme: 'Glass Minimalist', venue: 'Tech Hall', budget: '₹1,50,000', guestCount: '150' },
+            anniversary: { name: 'Silver Jubilee', theme: 'Sparkling Silver', venue: 'Grand Plaza', budget: '₹1,20,000', guestCount: '80' },
+            babyshower: { name: 'Baby Bloom', theme: 'Pastel Dream', venue: 'The Gardenia', budget: '₹45,000', guestCount: '40' },
+            engagement: { name: 'Ring & Vows', theme: 'Floral Elegance', venue: 'Majestic Lakeview', budget: '₹2,50,000', guestCount: '100' },
+            family: { name: 'Rooted Roots', theme: 'Garden Picnic', venue: 'Central Park', budget: '₹15,000', guestCount: '60' },
+            farewell: { name: 'Bon Voyage Party', theme: 'Travel & Maps', venue: 'Cloud 9 Bistro', budget: '₹35,000', guestCount: '45' }
           };
           
+          const mock = mocks[type.id];
           setEventData({
-            ...mocks[type.id],
+            ...mock,
             date: new Date().toISOString().split('T')[0],
             type: type.name
           });
           setShowResult(true);
-        }, 800);
+        }, 400);
       }
-    }, 800);
+    }, 400);
   };
 
   const handleSave = async () => {
@@ -137,15 +152,19 @@ const CreateEvent = () => {
                  <button 
                   key={type.id}
                   onClick={() => handleGenerate(type)}
-                  className="p-6 md:p-8 rounded-[2rem] border bg-white/5 border-white/5 hover:border-white/20 transition-all text-left flex flex-col group"
+                  className={`p-6 md:p-6 rounded-[2rem] border transition-all text-left flex flex-col group ${
+                    eventType?.id === type.id 
+                    ? `bg-${type.color}-500/10 border-${type.color}-500/40` 
+                    : 'bg-white/5 border-white/5 hover:border-white/20'
+                  }`}
                  >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 ${
-                      `bg-${type.color}-500/20 text-${type.color}-400`
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 ${
+                      eventType?.id === type.id ? `bg-${type.color}-500/20 text-${type.color}-400` : "bg-white/5 text-gray-500"
                     }`}>
-                      {type.icon}
+                      {React.cloneElement(type.icon, { size: 20 })}
                     </div>
-                    <h3 className="text-lg font-black text-white mb-1 uppercase italic">{type.name}</h3>
-                    <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">{type.desc}</p>
+                    <h3 className="text-sm font-black text-white mb-1 uppercase italic tracking-tight">{type.name}</h3>
+                    <p className="text-gray-500 text-[9px] font-bold uppercase tracking-widest">{type.desc}</p>
                  </button>
                ))}
             </div>
@@ -167,51 +186,66 @@ const CreateEvent = () => {
                    </div>
                    <button 
                     onClick={() => setIsEditing(!isEditing)}
-                    className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+                      isEditing 
+                      ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
+                      : "text-gray-500 hover:text-white bg-white/5"
+                    }`}
                    >
-                      <Edit3 size={14} /> {isEditing ? "Viewing" : "Edit Details"}
+                      <Edit3 size={14} /> {isEditing ? "Save View" : "Edit Plan"}
                    </button>
                 </div>
 
                 {isEditing ? (
                   <div className="space-y-6">
                      <div className="flex flex-col gap-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Event Name</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Event Name</label>
                         <input 
                           type="text" 
                           value={eventData.name} 
                           onChange={(e) => setEventData({...eventData, name: e.target.value})}
-                          className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                          className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner"
                         />
                      </div>
                      <div className="grid grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Venue</label>
-                           <input type="text" value={eventData.venue} onChange={(e) => setEventData({...eventData, venue: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold" />
+                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Venue</label>
+                           <input type="text" value={eventData.venue} onChange={(e) => setEventData({...eventData, venue: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" />
                         </div>
                         <div className="flex flex-col gap-2">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Date</label>
-                           <input type="date" value={eventData.date} onChange={(e) => setEventData({...eventData, date: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold" />
+                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Date</label>
+                           <input type="date" value={eventData.date} onChange={(e) => setEventData({...eventData, date: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                     </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Budget (₹)</label>
+                           <input type="text" value={eventData.budget} onChange={(e) => setEventData({...eventData, budget: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Guest Count</label>
+                           <input type="text" value={eventData.guestCount} onChange={(e) => setEventData({...eventData, guestCount: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" />
                         </div>
                      </div>
                   </div>
                 ) : (
                   <div>
                     <h1 className="text-5xl font-black italic tracking-tighter mb-4 leading-tight text-white uppercase">{eventData.name}</h1>
-                    <p className="text-gray-400 text-lg font-medium mb-12">
+                    <p className="text-gray-400 text-lg font-medium mb-12 italic">
                       Theme: {eventData.theme} <br />
                       Vibe: Balanced & Curated for {eventData.type}
                     </p>
 
-                    <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-x-12 gap-y-8">
                        {[
                          { label: "Venue", val: eventData.venue },
-                         { label: "Set Date", val: eventData.date },
-                         { label: "Budget", val: eventData.budget }
+                         { label: "Date", val: eventData.date },
+                         { label: "Budget", val: eventData.budget },
+                         { label: "Guests", val: eventData.guestCount }
                        ].map((item, i) => (
                          <div key={i} className="flex flex-col">
-                            <span className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">{item.label}</span>
-                            <span className="text-2xl font-bold text-white uppercase italic">{item.val}</span>
+                            <span className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] mb-1">{item.label}</span>
+                            <span className="text-xl font-bold text-white uppercase italic">{item.val}</span>
                          </div>
                        ))}
                     </div>

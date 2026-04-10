@@ -129,12 +129,23 @@ const Events = () => {
 
     setTimeout(() => {
       let response = "I'm analyzing your request... Based on your current event density, I suggest keeping the buffer times at 30 minutes.";
-      if (text.toLowerCase().includes('time')) response = "Optimal peak turnout is between 8:00 PM and 9:30 PM for urban corporate events.";
-      if (text.toLowerCase().includes('budget')) response = "Your current spending suggests a 12% saving opportunity on vendor logistics.";
+      
+      const lowerText = text.toLowerCase();
+      // RAG Logic: Check if user is asking about a specific saved event
+      const mentionedEvent = allEvents.find(e => lowerText.includes(e.name.toLowerCase()) || lowerText.includes(e.type.toLowerCase()));
+
+      if (mentionedEvent) {
+          response = `I've retrieved the data for "${mentionedEvent.name}". Based on the ₹${mentionedEvent.budget} budget and ${mentionedEvent.guestCount} guests, I predict a 94% logistical success rate. I recommend confirming the ${mentionedEvent.venue} 48 hours before the start.`;
+      } else if (lowerText.includes('time')) {
+          response = "Optimal peak turnout is between 8:00 PM and 9:30 PM for your upcoming schedule.";
+      } else if (lowerText.includes('budget')) {
+          const totalBudget = allEvents.reduce((acc, curr) => acc + parseInt(curr.budget.replace(/[^\d]/g, '') || 0), 0);
+          response = `You have ₹${totalBudget.toLocaleString()} locked in upcoming events. I suggest a 10% contingency buffer for unforeseen vendor costs.`;
+      }
       
       setMessages([...newMessages, { role: 'ai', text: response }]);
       setIsTyping(false);
-    }, 1500);
+    }, 800);
   };
 
   return (
