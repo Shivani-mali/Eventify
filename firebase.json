@@ -7,7 +7,11 @@
   },
   "auth": {
     "providers": {
-      "emailPassword": true
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Eventify",
+        "supportEmail": "shubhasmali1983@gmail.com"
+      }
     }
   }
 }
