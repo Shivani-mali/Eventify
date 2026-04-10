@@ -4,13 +4,17 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from './firebase';
 
 // Components
-import Navbar from './components/Navbar';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
+import Navbar from './components/layout/Navbar';
+import Login from './components/auth/Login';
+
 import Loader from './components/ui/Loader';
 
 // Pages
 import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import CreateEvent from './pages/CreateEvent';
+import Events from './pages/Events';
+import Analytics from './pages/Analytics';
 
 // Style
 import './index.css';
@@ -20,10 +24,10 @@ function App() {
   const [showLoader, setShowLoader] = useState(true);
 
   useEffect(() => {
-    // Show loader for at least 2.5 seconds
+    // Show loader for at least 3 seconds to complete the animation cycle
     const timer = setTimeout(() => {
       setShowLoader(false);
-    }, 2500);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -55,8 +59,11 @@ function App() {
           <Routes>
             <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
             <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+            <Route path="/create-event" element={user ? <CreateEvent /> : <Navigate to="/login" />} />
+            <Route path="/events" element={user ? <Events /> : <Navigate to="/login" />} />
+            <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} />
+            <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
             {/* Catch-all route to prevent blank screens on wrong paths */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

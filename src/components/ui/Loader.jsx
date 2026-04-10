@@ -6,16 +6,15 @@ const Loader = () => {
     <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#030712]">
       <StyledWrapper>
         <div className="loader-wrapper">
-          <span className="loader-letter">G</span>
+          <span className="loader-letter">E</span>
+          <span className="loader-letter">v</span>
           <span className="loader-letter">e</span>
           <span className="loader-letter">n</span>
-          <span className="loader-letter">e</span>
-          <span className="loader-letter">r</span>
-          <span className="loader-letter">a</span>
           <span className="loader-letter">t</span>
           <span className="loader-letter">i</span>
-          <span className="loader-letter">n</span>
-          <span className="loader-letter">g</span>
+          <span className="loader-letter">f</span>
+          <span className="loader-letter">y</span>
+
           <div className="loader" />
         </div>
       </StyledWrapper>
@@ -38,6 +37,7 @@ const StyledWrapper = styled.div`
     font-weight: 600;
     user-select: none;
     color: #fff;
+    letter-spacing: 0.15em;
 
     scale: 2;
   }
@@ -80,8 +80,8 @@ const StyledWrapper = styled.div`
       black 25%
     );
     animation:
-      transform-animation 3s infinite alternate,
-      opacity-animation 6s infinite;
+      transform-animation 1.5s infinite alternate,
+      opacity-animation 3s infinite;
     animation-timing-function: cubic-bezier(0.6, 0.8, 0.5, 1);
   }
 
@@ -110,40 +110,18 @@ const StyledWrapper = styled.div`
   .loader-letter {
     display: inline-block;
     opacity: 0;
-    animation: loader-letter-anim 6s infinite linear;
+    animation: loader-letter-anim 3s infinite linear;
     z-index: 2;
   }
 
-  .loader-letter:nth-child(1) {
-    animation-delay: 0.1s;
-  }
-  .loader-letter:nth-child(2) {
-    animation-delay: 0.205s;
-  }
-  .loader-letter:nth-child(3) {
-    animation-delay: 0.31s;
-  }
-  .loader-letter:nth-child(4) {
-    animation-delay: 0.415s;
-  }
-  .loader-letter:nth-child(5) {
-    animation-delay: 0.521s;
-  }
-  .loader-letter:nth-child(6) {
-    animation-delay: 0.626s;
-  }
-  .loader-letter:nth-child(7) {
-    animation-delay: 0.731s;
-  }
-  .loader-letter:nth-child(8) {
-    animation-delay: 0.837s;
-  }
-  .loader-letter:nth-child(9) {
-    animation-delay: 0.942s;
-  }
-  .loader-letter:nth-child(10) {
-    animation-delay: 1.047s;
-  }
+  .loader-letter:nth-child(1) { animation-delay: 0.1s; }
+  .loader-letter:nth-child(2) { animation-delay: 0.2s; }
+  .loader-letter:nth-child(3) { animation-delay: 0.3s; }
+  .loader-letter:nth-child(4) { animation-delay: 0.4s; }
+  .loader-letter:nth-child(5) { animation-delay: 0.5s; }
+  .loader-letter:nth-child(6) { animation-delay: 0.6s; }
+  .loader-letter:nth-child(7) { animation-delay: 0.7s; }
+  .loader-letter:nth-child(8) { animation-delay: 0.8s; }
 
   @keyframes loader-letter-anim {
     0% {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { auth, googleProvider } from '../firebase';
+import { auth, googleProvider } from '../../firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -62,8 +62,8 @@ const Login = () => {
             exit={{ opacity: 0, x: 10 }}
             className="text-center mb-10"
           >
-            <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter">
-              {isRegistering ? 'Get Started' : 'Sign In'}
+            <h1 className="text-3xl md:text-4xl font-black text-white mb-3 tracking-tighter">
+               {isRegistering ? 'Get Started' : 'Sign In'}
             </h1>
             <p className="text-gray-500 dark:text-gray-400 font-medium">
               {isRegistering ? 'Create your workspace' : 'Welcome back, builder'}
