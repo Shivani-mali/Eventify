@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import emailjs from '@emailjs/browser';
 import { 
   Sparkles, 
   Calendar, 
@@ -22,8 +23,12 @@ import {
   Baby,
   Gem,
   Home,
-  Palmtree
+  Palmtree,
+  Cpu,
+  MessageSquare,
+  XCircle
 } from 'lucide-react';
+import AIAssistant from '../components/AIAssistant';
 
 const CreateEvent = () => {
   const [eventType, setEventType] = useState(null);
@@ -32,6 +37,7 @@ const CreateEvent = () => {
   const [status, setStatus] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showAI, setShowAI] = useState(false);
 
   // Form State for Generated Event
   const [eventData, setEventData] = useState({
@@ -101,20 +107,39 @@ const CreateEvent = () => {
   const handleSave = async () => {
     if (!auth.currentUser) return alert("Please login first");
     setIsSaving(true);
-    console.log("Saving Event Data:", eventData);
+    
     try {
       const docRef = await addDoc(collection(db, "events"), {
         ...eventData,
         userId: auth.currentUser.uid,
         createdAt: new Date()
       });
-      console.log("Document written with ID: ", docRef.id);
-      alert("Event successfully saved to your calendar! 🎉");
+
+      // Send Email Notification via EmailJS
+      const templateParams = {
+        event_name: eventData.name,
+        user_name: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
+        event_date: eventData.date,
+        venue: eventData.venue,
+        budget: eventData.budget,
+        guests: eventData.guestCount,
+        email: auth.currentUser.email
+      };
+
+      await emailjs.send(
+        'service_mq7uh8j',
+        'template_wummb2b',
+        templateParams,
+        'GMN5uSfPH0yCwmOPM'
+      );
+
+      console.log("Document written and Email sent!");
+      alert("Event saved & Confirmation email sent! 🚀");
       setShowResult(false);
       setEventType(null);
     } catch (err) {
       console.error("Save Error:", err);
-      alert("Error saving: " + err.message);
+      alert("Error: " + err.message);
     } finally {
       setIsSaving(false);
     }
@@ -181,18 +206,18 @@ const CreateEvent = () => {
             <div className="flex flex-col md:flex-row gap-12">
               <div className="flex-1">
                 <div className="flex justify-between items-center mb-6">
-                   <div className={`inline-flex items-center gap-2 px-4 py-2 bg-${eventType.color}-500/10 text-${eventType.color}-500 rounded-full text-xs font-black uppercase tracking-widest border border-${eventType.color}-500/20`}>
-                      <CheckCircle size={14} /> AI Recommendation
+                   <div className={`inline-flex items-center gap-2 px-4 py-2 bg-${eventType.color}-500/10 text-${eventType.color}-500 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest border border-${eventType.color}-500/20`}>
+                      <CheckCircle size={12} /> AI Recommendation
                    </div>
                    <button 
                     onClick={() => setIsEditing(!isEditing)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+                    className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest transition-all ${
                       isEditing 
                       ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
                       : "text-gray-500 hover:text-white bg-white/5"
                     }`}
                    >
-                      <Edit3 size={14} /> {isEditing ? "Save View" : "Edit Plan"}
+                      <Edit3 size={12} /> {isEditing ? "Save View" : "Edit Plan"}
                    </button>
                 </div>
 
@@ -204,39 +229,39 @@ const CreateEvent = () => {
                           type="text" 
                           value={eventData.name} 
                           onChange={(e) => setEventData({...eventData, name: e.target.value})}
-                          className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner"
+                          className="bg-white/5 border border-white/10 p-3 md:p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner text-sm md:text-base"
                         />
                      </div>
-                     <div className="grid grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Venue</label>
-                           <input type="text" value={eventData.venue} onChange={(e) => setEventData({...eventData, venue: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" />
+                           <input type="text" value={eventData.venue} onChange={(e) => setEventData({...eventData, venue: e.target.value})} className="bg-white/5 border border-white/10 p-3 md:p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base" />
                         </div>
                         <div className="flex flex-col gap-2">
                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Date</label>
-                           <input type="date" value={eventData.date} onChange={(e) => setEventData({...eventData, date: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" />
+                           <input type="date" value={eventData.date} onChange={(e) => setEventData({...eventData, date: e.target.value})} className="bg-white/5 border border-white/10 p-3 md:p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base" />
                         </div>
                      </div>
-                     <div className="grid grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Budget (₹)</label>
-                           <input type="text" value={eventData.budget} onChange={(e) => setEventData({...eventData, budget: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" />
+                           <input type="text" value={eventData.budget} onChange={(e) => setEventData({...eventData, budget: e.target.value})} className="bg-white/5 border border-white/10 p-3 md:p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base" />
                         </div>
                         <div className="flex flex-col gap-2">
                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Guest Count</label>
-                           <input type="text" value={eventData.guestCount} onChange={(e) => setEventData({...eventData, guestCount: e.target.value})} className="bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500" />
+                           <input type="text" value={eventData.guestCount} onChange={(e) => setEventData({...eventData, guestCount: e.target.value})} className="bg-white/5 border border-white/10 p-3 md:p-4 rounded-2xl text-white font-bold outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base" />
                         </div>
                      </div>
                   </div>
                 ) : (
                   <div>
-                    <h1 className="text-5xl font-black italic tracking-tighter mb-4 leading-tight text-white uppercase">{eventData.name}</h1>
-                    <p className="text-gray-400 text-lg font-medium mb-12 italic">
+                    <h1 className="text-3xl md:text-5xl font-black italic tracking-tighter mb-4 leading-tight text-white uppercase">{eventData.name}</h1>
+                    <p className="text-gray-400 text-sm md:text-lg font-medium mb-8 md:mb-12 italic">
                       Theme: {eventData.theme} <br />
                       Vibe: Balanced & Curated for {eventData.type}
                     </p>
 
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 md:gap-y-8">
                        {[
                          { label: "Venue", val: eventData.venue },
                          { label: "Date", val: eventData.date },
@@ -245,7 +270,7 @@ const CreateEvent = () => {
                        ].map((item, i) => (
                          <div key={i} className="flex flex-col">
                             <span className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] mb-1">{item.label}</span>
-                            <span className="text-xl font-bold text-white uppercase italic">{item.val}</span>
+                            <span className="text-lg md:text-xl font-bold text-white uppercase italic">{item.val}</span>
                          </div>
                        ))}
                     </div>
@@ -265,10 +290,17 @@ const CreateEvent = () => {
                    <button 
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-[2rem] font-black uppercase italic transition-all flex items-center justify-center gap-3 mt-8 shadow-2xl shadow-blue-600/30"
+                    className="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-[2rem] font-black uppercase italic transition-all flex items-center justify-center gap-3 shadow-2xl shadow-blue-600/30"
                    >
                       {isSaving ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Save to Calendar</>}
                    </button>
+
+                   <button 
+                     onClick={() => setShowAI(true)}
+                     className="w-full py-4 bg-white/5 hover:bg-white/10 text-cyan-400 rounded-[2rem] font-black uppercase italic transition-all flex items-center justify-center gap-3 mt-2 border border-white/5"
+                    >
+                       <Cpu size={18} className="animate-pulse" /> Consult AI for this Plan
+                    </button>
                 </div>
                 
                 <button 
@@ -279,6 +311,15 @@ const CreateEvent = () => {
                 </button>
               </div>
             </div>
+
+            <AnimatePresence>
+               {showAI && (
+                 <AIAssistant 
+                   onClose={() => setShowAI(false)} 
+                   pendingEvent={eventData} 
+                 />
+               )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

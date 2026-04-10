@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebase';
 import { collection, query, onSnapshot, orderBy, where, deleteDoc, doc } from 'firebase/firestore';
@@ -28,13 +29,14 @@ const Events = () => {
   const [allEvents, setAllEvents] = useState([]);
   const [reminders, setReminders] = useState([]);
 
+  const [user] = useAuthState(auth);
+
   // Fetch Events from Firestore
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (!user) return;
     const q = query(
       collection(db, "events"), 
-      where("userId", "==", auth.currentUser.uid),
-      orderBy("createdAt", "desc")
+      where("userId", "==", user.uid)
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -45,7 +47,7 @@ const Events = () => {
       setReminders(docs.filter(e => e.date >= now).slice(0, 3));
     });
     return unsubscribe;
-  }, []);
+  }, [user]);
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -189,12 +191,16 @@ const Events = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-[3rem] border-white/5 overflow-hidden">
-           <div className="grid grid-cols-7 bg-white/5 border-b border-white/5">
-              {days.map(d => <div key={d} className="py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 border-r border-white/5 last:border-0">{d}</div>)}
-           </div>
-           <div className="grid grid-cols-7">
-              {renderCalendar()}
+        <div className="glass-card rounded-[2rem] md:rounded-[3rem] border-white/5 overflow-hidden">
+           <div className="overflow-x-auto custom-scrollbar">
+             <div className="min-w-[700px]">
+                <div className="grid grid-cols-7 bg-white/5 border-b border-white/5">
+                   {days.map(d => <div key={d} className="py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 border-r border-white/5 last:border-0">{d}</div>)}
+                </div>
+                <div className="grid grid-cols-7">
+                   {renderCalendar()}
+                </div>
+             </div>
            </div>
         </div>
 
@@ -211,25 +217,25 @@ const Events = () => {
                   <h3 className="text-xl font-black italic uppercase tracking-tighter mb-6 text-blue-400">Events on {selectedDateStr}</h3>
                   <div className="space-y-4">
                     {selectedDateEvents.length > 0 ? selectedDateEvents.map(e => (
-                      <div key={e.id} className="flex items-center justify-between p-6 bg-white/5 rounded-3xl border border-white/5 hover:border-white/10 transition-all">
-                        <div className="flex items-center gap-6">
-                           <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white"><Sparkles size={24}/></div>
+                      <div key={e.id} className="flex flex-col md:flex-row md:items-center justify-between p-5 md:p-6 bg-white/5 rounded-3xl border border-white/5 hover:border-white/10 transition-all gap-4">
+                        <div className="flex items-center gap-4 md:gap-6">
+                           <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white"><Sparkles size={20}/></div>
                            <div>
-                             <h4 className="text-xl font-black italic uppercase">{e.name}</h4>
-                             <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">{e.venue} • {e.type}</p>
+                             <h4 className="text-lg md:text-xl font-black italic uppercase tracking-tight">{e.name}</h4>
+                             <p className="text-[10px] md:text-sm text-gray-500 font-bold uppercase tracking-widest leading-none">{e.venue} • {e.type}</p>
                            </div>
                         </div>
-                        <div className="flex items-center gap-8">
-                           <div className="text-right hidden md:block">
-                              <div className="text-xs font-black text-gray-600 uppercase tracking-widest mb-1">Budget</div>
-                              <div className="text-lg font-black text-white">{e.budget}</div>
+                        <div className="flex items-center justify-between md:justify-end gap-6 md:gap-8 border-t border-white/5 pt-4 md:border-0 md:pt-0">
+                           <div className="text-left md:text-right">
+                              <div className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1 leading-none">Budget</div>
+                              <div className="text-base md:text-lg font-black text-white">{e.budget}</div>
                            </div>
                            <button 
                              onClick={(ev) => { ev.stopPropagation(); handleDeleteEvent(e.id); }} 
-                             className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                             className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/5"
                              title="Cancel Event"
                            >
-                              <Trash2 size={18} />
+                              <Trash2 size={16} />
                            </button>
                         </div>
                       </div>
@@ -250,48 +256,48 @@ const Events = () => {
              <Bot className="text-cyan-400" size={24} />
              <h2 className="text-2xl font-black tracking-tighter uppercase italic">AI Smart Suggestions</h2>
            </div>
-           <div className="grid md:grid-cols-2 gap-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 { title: "Peak Turnout Time", desc: "Based on trends, 8:45 PM is perfect for your keynote.", icon: <Clock /> },
                 { title: "Resource Optimization", desc: "Reduce catering waste by 15% with guest-flow tracking.", icon: <Zap /> },
                 { title: "Venue Match", desc: "Nexus Hub is 92% match for your capacity requirements.", icon: <MapPin /> },
                 { title: "Risk Warning", desc: "Weather alert for outdoor setup. Recommending tent booking.", icon: <Bell /> }
               ].map((item, i) => (
-                <div key={i} className="p-8 bg-[#0A0A0A] border border-white/5 rounded-[2.5rem] hover:border-cyan-500/30 transition-all group">
-                   <div className="w-12 h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-cyan-400 mb-6 group-hover:scale-110 transition-transform">{item.icon}</div>
-                   <h3 className="text-xl font-black mb-2 tracking-tight">{item.title}</h3>
-                   <p className="text-gray-500 text-sm font-medium leading-relaxed">{item.desc}</p>
+                <div key={i} className="p-6 md:p-8 bg-[#0A0A0A] border border-white/5 rounded-[2rem] md:rounded-[2.5rem] hover:border-cyan-500/30 transition-all group">
+                   <div className="w-10 h-10 md:w-12 md:h-12 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-cyan-400 mb-4 md:mb-6 group-hover:scale-110 transition-transform">{item.icon}</div>
+                   <h3 className="text-lg md:text-xl font-black mb-2 tracking-tight uppercase italic">{item.title}</h3>
+                   <p className="text-gray-500 text-xs md:text-sm font-medium leading-relaxed">{item.desc}</p>
                 </div>
               ))}
            </div>
         </div>
 
         <div className="lg:col-span-1">
-           <div className="glass-card p-10 rounded-[3rem] border-white/5 h-full relative overflow-hidden flex flex-col justify-between">
+           <div className="glass-card p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border-white/5 h-full relative overflow-hidden flex flex-col justify-between">
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 blur-3xl -z-10" />
               <div>
                 <div className="flex items-center gap-3 mb-8">
-                   <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg"><MessageSquare size={20} /></div>
-                   <h3 className="text-xl font-black tracking-tight italic">AI Assistant</h3>
+                   <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg"><MessageSquare size={18} /></div>
+                   <h3 className="text-lg md:text-xl font-black tracking-tight italic uppercase">AI Assistant</h3>
                 </div>
-                <div className="space-y-4 mb-4 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-4 mb-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                    {messages.map((m, i) => (
-                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={i} className={`p-4 rounded-2xl text-sm font-medium border border-white/5 ${m.role === 'ai' ? 'bg-white/5 text-gray-400 italic' : 'bg-blue-600/10 text-blue-400 ml-8'}`}>
+                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={i} className={`p-4 rounded-2xl text-xs font-medium border border-white/5 ${m.role === 'ai' ? 'bg-white/5 text-gray-400 italic' : 'bg-blue-600/10 text-blue-400 ml-4 md:ml-8'}`}>
                         {m.text}
                      </motion.div>
                    ))}
-                   {isTyping && <div className="text-xs text-gray-500 animate-pulse italic ml-2">AI is thinking...</div>}
+                   {isTyping && <div className="text-[10px] text-gray-500 animate-pulse italic ml-2">AI thinking...</div>}
                 </div>
                 <div className="flex flex-wrap gap-2 mb-8">
                   {["Best Time", "Budget Tips", "Staffing", "Logistics"].map(tag => (
-                    <button key={tag} onClick={() => sendMessage(tag)} className="px-4 py-2 bg-blue-500/10 text-blue-400 text-[10px] font-black uppercase rounded-full border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all">{tag}</button>
+                    <button key={tag} onClick={() => sendMessage(tag)} className="px-3 py-1.5 bg-blue-500/10 text-blue-400 text-[9px] md:text-[10px] font-black uppercase rounded-full border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-all">{tag}</button>
                   ))}
                </div>
               </div>
               <div className="relative">
                 <form onSubmit={(e) => { e.preventDefault(); sendMessage(inputValue); }}>
-                  <input type="text" className="w-full px-6 py-5 rounded-2xl border border-white/10 bg-white/5 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold text-sm" placeholder="Ask anything..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
-                  <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-600 rounded-xl text-white shadow-lg active:scale-95 transition-all"><Zap size={18}/></button>
+                  <input type="text" className="w-full px-5 py-4 rounded-xl border border-white/10 bg-white/5 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold text-xs" placeholder="Ask anything..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
+                  <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 rounded-lg text-white shadow-lg active:scale-95 transition-all"><Zap size={16}/></button>
                 </form>
               </div>
            </div>

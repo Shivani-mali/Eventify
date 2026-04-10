@@ -6,7 +6,7 @@ const BentoGrid = ({ children, className }) => {
   return (
     <div
       className={cn(
-        "grid w-full auto-rows-[22rem] grid-cols-1 md:grid-cols-3 gap-6",
+        "grid w-full auto-rows-[16rem] md:auto-rows-[22rem] grid-cols-1 md:grid-cols-3 gap-6",
         className
       )}
     >
@@ -23,14 +23,16 @@ const BentoCard = ({
   description,
   href,
   cta,
+  onClick,
 }) => (
   <motion.div
     key={name}
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
+    onClick={onClick}
     className={cn(
-      "group relative col-span-1 flex flex-col justify-between overflow-hidden rounded-[2.5rem]",
+      "group relative col-span-1 flex flex-col justify-between overflow-hidden rounded-[2.5rem] cursor-pointer",
       "bg-[#0A0A0A] border border-cyan-500/10 transform-gpu",
       "hover:border-cyan-500/30 transition-all duration-500",
       className
