@@ -176,7 +176,7 @@ const AIAssistant = ({ onClose, pendingEvent }) => {
       </div>
 
       {/* Input area */}
-      <div className="p-6 bg-[#080808] border-t border-white/5">
+      <div className="p-6 bg-[#080808] border-t border-white/5 space-y-4">
         <form onSubmit={handleSubmit} className="relative">
           <input 
             type="text" 
@@ -192,6 +192,13 @@ const AIAssistant = ({ onClose, pendingEvent }) => {
             <Zap size={18} />
           </button>
         </form>
+        
+        <button 
+          onClick={onClose}
+          className="w-full py-3 border border-white/5 hover:bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-rose-500 transition-all"
+        >
+          Disconnect Neural Link
+        </button>
       </div>
     </motion.div>
   );

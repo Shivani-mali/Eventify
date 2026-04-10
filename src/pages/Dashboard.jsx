@@ -154,7 +154,7 @@ const Dashboard = () => {
       name: "Reminders",
       description: "Upcoming events and alerts.",
       Icon: Bell,
-      href: "/events",
+      href: "#tasks",
       cta: "View Reminders",
       className: "col-span-1",
       background: (
@@ -243,7 +243,7 @@ const Dashboard = () => {
       </div>
 
       {/* 4. MANAGER TOOLKIT */}
-      <div className="mb-24">
+      <div id="toolkit" className="mb-24">
          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-4 px-1">
             <h2 className="text-xs font-black uppercase tracking-[0.3em] text-purple-400 flex items-center gap-3">
                <Bot size={14} /> Strategic Manager Toolkit
@@ -304,7 +304,7 @@ const Dashboard = () => {
                </div>
             </div>
 
-            <div className="glass-card rounded-[3rem] p-8 md:p-12 border-white/5 relative overflow-hidden flex flex-col">
+            <div id="tasks" className="glass-card rounded-[3rem] p-8 md:p-12 border-white/5 relative overflow-hidden flex flex-col">
                <div className="flex items-center gap-4 mb-10">
                   <div className="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500 border border-yellow-500/20">
                      <AlertTriangle size={24} />

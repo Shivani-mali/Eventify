@@ -203,7 +203,7 @@ const CreateEvent = () => {
           >
             <div className={`absolute top-0 right-0 w-64 h-64 bg-${eventType.color}-500/10 blur-[100px] -z-10`} />
             
-            <div className="flex flex-col md:flex-row gap-12">
+            <div className="flex flex-col md:flex-row gap-12 pb-32 md:pb-12">
               <div className="flex-1">
                 <div className="flex justify-between items-center mb-6">
                    <div className={`inline-flex items-center gap-2 px-4 py-2 bg-${eventType.color}-500/10 text-${eventType.color}-500 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest border border-${eventType.color}-500/20`}>
