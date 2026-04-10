@@ -256,53 +256,8 @@ const Dashboard = () => {
             </button>
          </div>
 
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="glass-card rounded-[3rem] p-8 md:p-12 border-white/5 relative overflow-hidden">
-               <div className="flex items-center gap-4 mb-10">
-                  <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 border border-green-500/20">
-                     <ShieldAlert size={24} />
-                  </div>
-                  <h3 className="text-3xl font-black italic tracking-tighter uppercase">Deployment Protocols</h3>
-               </div>
+         <div className="space-y-8">
 
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                  <div>
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-green-400 mb-6 flex items-center gap-2 pb-2 border-b border-green-400/10">
-                      <CheckCircle2 size={14} /> Essential Do's
-                    </h4>
-                    <ul className="space-y-5">
-                      {[
-                        "Confirm venue 48h early",
-                        "Audit A/V systems",
-                        "Sync guest list with RAG",
-                        "Quality check catering"
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-start gap-4 text-xs font-bold text-gray-400 leading-relaxed">
-                           <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-1.5 flex-shrink-0" /> {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-6 flex items-center gap-2 pb-2 border-b border-rose-500/10">
-                      <XCircle size={14} /> Critical Avoids
-                    </h4>
-                    <ul className="space-y-5">
-                      {[
-                        "Late theme rotations",
-                        "Unsecured vendor logs",
-                        "Dismissing weather telemetry",
-                        "Overloading grid capacity"
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-start gap-4 text-xs font-bold text-gray-400 leading-relaxed">
-                           <div className="w-1.5 h-1.5 bg-rose-500 rounded-full mt-1.5 flex-shrink-0" /> {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-               </div>
-            </div>
 
             <div id="tasks" className="glass-card rounded-[3rem] p-8 md:p-12 border-white/5 relative overflow-hidden flex flex-col">
                <div className="flex items-center gap-4 mb-10">
